@@ -112,27 +112,19 @@ This is a full-featured social media application built using **Django Rest Frame
    pip install -r requirements.txt
    ```
 
-4. **Set Up Environment Variables:**
-
-   Copy the `.env.sample` file and rename it to `.env`. Update the necessary environment variables.
-
-   ```bash
-   cp .env.sample .env
-   ```
-
-5. **Apply Migrations:**
+4. **Apply Migrations:**
 
    ```bash
    python manage.py migrate
    ```
 
-6. **Run the Development Server:**
+5. **Run the Development Server:**
 
    ```bash
    python manage.py runserver
    ```
 
-7. **Access the Application:**
+6. **Access the Application:**
 
    The application will be running at `http://127.0.0.1:8000/`.
 

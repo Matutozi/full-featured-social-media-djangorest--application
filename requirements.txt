@@ -1,0 +1,8 @@
+django
+djangorestframework
+markdown
+django-filter
+pillow
+channels
+celery
+djangorestframework-simplejwt

@@ -30,8 +30,6 @@ class UserManager(BaseUserManager):
         return self.create_user(email, username, password, **extra_fields)
 
 
-# Create your models here.
-
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Model that contains all the info about a user"""
@@ -48,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(null=True, blank=True)
     followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
@@ -68,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 
-class ProfilePics(models.Model):
+class ProfilePic(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.URLField()

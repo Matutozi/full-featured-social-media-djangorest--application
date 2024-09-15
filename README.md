@@ -1,6 +1,4 @@
-# full-featured-social-media-djangorest--application
-
-# Django Rest Framework (DRF) Social Media Application
+## Django Rest Framework (DRF) Social Media Application
 
 This is a full-featured social media application built using **Django Rest Framework (DRF)**. It includes features like user authentication, profiles, posts, followers, messaging, notifications, and more. The project is designed with scalability and modern web technologies, providing a comprehensive backend system for a social media platform.
 

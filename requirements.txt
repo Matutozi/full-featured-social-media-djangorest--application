@@ -6,3 +6,5 @@ pillow
 channels
 celery
 djangorestframework-simplejwt
+PyJWT
+django-cors-headers

@@ -36,30 +36,36 @@ class LoginView(APIView):
         
         token = jwt.encode(payload, "secret", algorithm="HS256")
 
-        response = Response()
+        
 
-        response.set_cookie(key="jwt", value=token, httponly=True)
-
-        response.data = {
-                        "jwt": token
+        response_data = {
+            "status_code": status.HTTP_200_OK,
+            "jwt": token,
+             "data": {
+                 "access_token": token
+             }
 
         }
-        return response
+        return Response(response_data)
+    
     
 
 class UserView(APIView):
     def get(self, request):
-        token = request.COOKIES.get("jwt")
+        auth_head = request.headers.get("Authorization")
 
-
-        if not token:
+        if not auth_head or not auth_head.startswith("Bearer "):
             raise AuthenticationFailed("Unauthenticated")
         
+        token = auth_head.split(" ")[1]
+
         try:
             payload = jwt.decode(token, "secret", algorithms=["HS256"])
 
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Unauthenticated")
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed("Invalid token")
         
         user = User.objects.get(id=payload["id"])
         serializer = UserSerializers(user)
@@ -75,11 +81,9 @@ class UserView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        response = Response()
-        response.delete_cookie("jwt")
-        response.data = {
+        response_data = {
             "status_code": status.HTTP_200_OK,
             "message": "Logout Successful.",
             "data": {}
         }
-        return response
+        return Response(response_data)

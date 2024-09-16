@@ -5,9 +5,9 @@ This is a full-featured social media application built using **Django Rest Frame
 ## Key Features
 
 ### User Authentication:
-- [ ] User registration, login, and logout.
-- [ ] Password hashing using Django's authentication system.
-- [ ] JWT token-based authentication.
+- [x] User registration, login, and logout.
+- [x] Password hashing using Django's authentication system.
+- [x] JWT token-based authentication.
 - [ ] Role-based access control (e.g., admin and regular user).
 
 ### User Profiles:

@@ -6,15 +6,23 @@ class UserSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'username', 'password', 'role', 
-            'bio', 'contact_info', 'social_links', 'followers', 
-            'created_at', 'updated_at'
+            "id",
+            "email",
+            "username",
+            "password",
+            "role",
+            "bio",
+            "contact_info",
+            "social_links",
+            "followers",
+            "created_at",
+            "updated_at",
         ]
 
         extra_kwargs = {
-            'password': {'write_only': True}, 
-            'created_at': {'read_only': True},
-            'updated_at': {'read_only': True},
+            "password": {"write_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
         }
 
     def create(self, validated_data):
@@ -22,7 +30,18 @@ class UserSerializers(serializers.ModelSerializer):
         instance = self.Meta.model(**validated_data)
 
         if password is not None:
-            instance.set_password(password) #to hash the passwoord
+            instance.set_password(password)  # to hash the passwoord
 
         instance.save()
         return instance
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "password"]
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+
+        return user

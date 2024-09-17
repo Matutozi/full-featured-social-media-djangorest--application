@@ -10,7 +10,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=40, unique=True)
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
+    #password = models.CharField(max_length=1200, editable=False)
     role = models.CharField(max_length=40, choices=[('user', 'User'), ('admin', 'Admin')], default='user')
     bio = models.TextField(null=True, blank=True)
     contact_info = models.TextField(null=True, blank=True)

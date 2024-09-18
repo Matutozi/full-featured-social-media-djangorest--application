@@ -8,7 +8,7 @@ urlpatterns = [
     path("login", LoginView.as_view()),
     path("", UserView.as_view()),
     path("logout", LogoutView.as_view()),
-    path("/<int:pk>/", UserProfile.as_view(), name="user-detail"),
+    path("<int:pk>/", UserProfile.as_view(), name="user-detail"),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

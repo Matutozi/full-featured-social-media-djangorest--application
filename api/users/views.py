@@ -1,18 +1,30 @@
 from django.shortcuts import render
+from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from .serializers import UserSerializers, CreateUserSerializer, UserUpdateSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from django.http import Http404
 from rest_framework import status
 from .models import User
-import jwt, datetime
+import jwt
 from django.conf import settings
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 JWT_SECRET = settings.SECRET_KEY
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
 
 
 class RegisterView(APIView):
@@ -20,7 +32,7 @@ class RegisterView(APIView):
         serializer = CreateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LoginView(APIView):
@@ -29,9 +41,17 @@ class LoginView(APIView):
         password = request.data.get("password")
 
         if not email or not password:
-            raise AuthenticationFailed("Email and Password required")
 
-        user = User.objects.filter(email=email).first()
+            response_data = {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": "Email and Password required",
+                "data": {},
+            }
+            return Response(response_data, status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, email=email, password=password)
+
+        # user = User.objects.filter(email=email).first()
 
         """  FOR DEBUG
         print(user)
@@ -40,90 +60,71 @@ class LoginView(APIView):
         print(request.data)
 
         """
-        if user is None:
-            raise AuthenticationFailed("User not found")
 
-        if not user.check_password(password):
-            raise AuthenticationFailed("Incorrect Password")
+        if user is not None:
+            token = get_tokens_for_user(user)["access"]
 
-        payload = {
-            "id": str(user.id),
-            "email": user.email,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            "iat": datetime.datetime.utcnow(),
-        }
+            response_data = {
+                "status_code": status.HTTP_200_OK,
+                "message": "Authentication successful",
+                "data": {"access_token": token},
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
 
-        token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
-
-        response_data = {
-            "status_code": status.HTTP_200_OK,
-            "jwt": token,
-            "data": {"access_token": token},
-        }
-        return Response(response_data)
-
-
-class LogoutView(APIView):
-    def post(self, request):
-        auth_header = request.headers.get("Authorization")
-
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return Response(
-                {"detail": "No token provided"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        token = auth_header.split(" ")[1]
-
-        try:
-            refresh_token = RefreshToken(token)
-            refresh_token.blacklist()
-        except TokenError:
-            raise AuthenticationFailed("Invalid Token")
-
-        response_data = {
-            "status_code": status.HTTP_200_OK,
-            "message": "Logout Successful.",
-            "data": {},
-        }
-        return Response(response_data)
+        else:
+            response_data = {
+                "status_code": status.HTTP_401_UNAUTHORIZED,
+                "message": "Invalid credentials",
+                "data": {},
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def get(self, request):
-        print("USER VIEW")
-        auth_head = request.headers.get("Authorization")
+        print(request)
+        user = request.user
 
-        # print(auth_head)
-
-        if not auth_head or not auth_head.startswith("Bearer "):
-            raise AuthenticationFailed("Unauthenticated-  No token provided")
-
-        token = auth_head.split(" ")[1]
-        print(token)
-
-        try:
-            payload = jwt.decode(token, JWT_SECRET, algorithm="HS256")
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed("Unauthenticated- Token has expired")
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed("Invalid token")
-
-        print(payload)
-
-        user_data = {
-            "id": payload["id"],
-            "email": payload["email"],
-        }
+        serializer = UserSerializers(user)
 
         response = Response(
             {
                 "status_code": status.HTTP_200_OK,
                 "message": "User details fetched successfully.",
-                "data": user_data,
+                "data": serializer.data,
             }
         )
 
         return response
+
+
+class LogoutView(APIView):
+    [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            response_data = {
+                "status_code": status.HTTP_200_OK,
+                "message": "Logout Successful.",
+                "data": {},
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        except AuthenticationFailed:
+            response_data = {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": "Bad request or token invalid",
+                "data": {},
+            }
+            return Response(response_data)
 
 
 class UserProfile(APIView):
@@ -139,7 +140,7 @@ class UserProfile(APIView):
 
     def get(self, request, pk, format=None):
         """Retrieve a user profile"""
-        
+
         user = self.get_object(pk)
         serializer = UserSerializers(user)
         response_data = {

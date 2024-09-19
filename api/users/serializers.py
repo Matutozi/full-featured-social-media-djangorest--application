@@ -10,6 +10,8 @@ class UserSerializers(serializers.ModelSerializer):
             "email",
             "username",
             "password",
+            "first_name",
+            "last_name",
             "role",
             "bio",
             "contact_info",
@@ -39,7 +41,7 @@ class UserSerializers(serializers.ModelSerializer):
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password"]
+        fields = ["id", "username", "first_name", "last_name", "email", "password"]
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
@@ -52,6 +54,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "username",
+            "first_name",
+            "last_name",
             "bio",
             "email",
             "contact_info",

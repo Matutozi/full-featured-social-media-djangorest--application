@@ -182,5 +182,8 @@ class UserProfile(APIView):
         return Response(response_data)
 
 
-class ProfilePicView:
-    pass
+class ProfilePicsCreation(APIView):
+    permission_classes = [IsAuthenticated]
+
+    
+

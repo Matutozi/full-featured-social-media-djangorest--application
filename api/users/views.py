@@ -1,7 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
-from .serializers import UserSerializers, CreateUserSerializer, UserUpdateSerializer
+from .serializers import (
+    UserSerializers,
+    CreateUserSerializer,
+    UserUpdateSerializer,
+    ProfilePicsSerializer,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -10,10 +15,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import Http404
 from rest_framework import status
 from .models import User
-import jwt
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -53,14 +56,6 @@ class LoginView(APIView):
 
         # user = User.objects.filter(email=email).first()
 
-        """  FOR DEBUG
-        print(user)
-        print(user.check_password(password))
-        print(password)
-        print(request.data)
-
-        """
-
         if user is not None:
             token = get_tokens_for_user(user)["access"]
 
@@ -80,9 +75,8 @@ class LoginView(APIView):
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class UserView(APIView):
+class GetUserDetail(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         print(request)
@@ -102,13 +96,16 @@ class UserView(APIView):
 
 
 class LogoutView(APIView):
-    [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            refresh_token = request.data.get("refresh_token")
+            #refresh_token = request.data.get("refresh")
+            access_token = request.headers.get("Authorization").split()[1]
 
-            token = RefreshToken(refresh_token)
+            print(access_token)
+
+            token = RefreshToken(access_token)
             token.blacklist()
 
             response_data = {
@@ -117,7 +114,7 @@ class LogoutView(APIView):
                 "data": {},
             }
             return Response(response_data, status=status.HTTP_200_OK)
-        
+
         except AuthenticationFailed:
             response_data = {
                 "status_code": status.HTTP_400_BAD_REQUEST,
@@ -183,3 +180,7 @@ class UserProfile(APIView):
             "data": {},
         }
         return Response(response_data)
+
+
+class ProfilePicView:
+    pass

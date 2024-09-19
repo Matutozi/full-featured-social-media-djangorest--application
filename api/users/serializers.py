@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, ProfilePic
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -50,4 +50,19 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "bio", "email", "contact_info", "social_links", "is_active"]
+        fields = [
+            "username",
+            "bio",
+            "email",
+            "contact_info",
+            "social_links",
+            "is_active",
+        ]
+
+
+class ProfilePicsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfilePic
+        flelds = ["id", "user", "image", "created_at", "updated_at"]
+
+        extra_kwargs = ["id", "created_at", "updated_at"]

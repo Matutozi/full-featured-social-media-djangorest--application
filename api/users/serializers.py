@@ -63,10 +63,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "is_active",
         ]
 
-
 class ProfilePicsSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField() 
+
     class Meta:
         model = ProfilePic
-        flelds = ["id", "user", "image", "created_at", "updated_at"]
+        fields = ["id", "username", "image", "created_at", "updated_at"]
+        extra_kwargs = {"user": {"read_only": True}}
 
-        extra_kwargs = ["id", "created_at", "updated_at"]
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
+
+    def get_username(self, obj):
+        return obj.user.username

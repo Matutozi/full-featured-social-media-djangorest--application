@@ -17,6 +17,7 @@ from rest_framework import status
 from .models import User
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
+from .models import ProfilePic, CoverPhoto
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -100,7 +101,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            #refresh_token = request.data.get("refresh")
+            # refresh_token = request.data.get("refresh")
             access_token = request.headers.get("Authorization").split()[1]
 
             print(access_token)
@@ -185,5 +186,45 @@ class UserProfile(APIView):
 class ProfilePicsCreation(APIView):
     permission_classes = [IsAuthenticated]
 
-    
+    def post(self, request, *args, **kwargs):
+        serializer = ProfilePicsSerializer(data=request.data, context= {"request": request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(
+                {
+                    "status_code": status.HTTP_201_CREATED,
+                    "message": "Profile picture uploaded successfully.",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": "Failed to upload profile picture.",
+                "data": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
+    def get(self, request):
+        qs = ProfilePic.objects.all()
+        if qs.exists():
+            qs_serializer = ProfilePicsSerializer(qs, many=True)
+            return Response(
+                {
+                    "status_code": status.HTTP_200_OK,
+                    "message": "Profile pictures retrieved successfully.",
+                    "data": qs_serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "message": "No profile pictures found.",
+                    "data": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )

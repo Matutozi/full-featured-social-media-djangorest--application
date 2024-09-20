@@ -11,8 +11,8 @@ This is a full-featured social media application built using **Django Rest Frame
 - [ ] Role-based access control (e.g., admin and regular user).
 
 ### User Profiles:
-- [ ] Create, update, and delete profiles.
-- [ ] Support for profile pictures and cover photos.
+- [x] Create, update, and delete profiles.
+- [x] Support for profile pictures and cover photos.
 - [ ] Bio, contact information, and social links.
 
 ### Posts & Feeds:

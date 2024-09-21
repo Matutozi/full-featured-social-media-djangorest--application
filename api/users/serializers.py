@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, ProfilePic, CoverPhoto
+from drf_spectacular.utils import extend_schema_field
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -49,6 +50,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -77,6 +83,7 @@ class ProfilePicsSerializer(serializers.ModelSerializer):
         validated_data["user"] = user
         return super().create(validated_data)
 
+    @extend_schema_field(str)
     def get_username(self, obj):
         return obj.user.username
 
@@ -94,5 +101,6 @@ class CoverPhotosSerializer(serializers.ModelSerializer):
         validated_data["user"] = user
         return super().create(validated_data)
 
+    @extend_schema_field(str)
     def get_username(self, obj):
         return obj.user.username

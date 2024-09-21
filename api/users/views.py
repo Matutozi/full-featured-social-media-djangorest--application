@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework.generics import GenericAPIView
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from .serializers import (
@@ -7,6 +8,7 @@ from .serializers import (
     UserUpdateSerializer,
     ProfilePicsSerializer,
     CoverPhotosSerializer,
+    LoginSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -33,34 +35,28 @@ def get_tokens_for_user(user):
 
 
 class RegisterView(APIView):
+    serializer_class = CreateUserSerializer
     def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LoginView(APIView):
+class LoginView(GenericAPIView):
+    serializer_class = LoginSerializer
+
     def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not email or not password:
-
-            response_data = {
-                "status_code": status.HTTP_400_BAD_REQUEST,
-                "message": "Email and Password required",
-                "data": {},
-            }
-            return Response(response_data, status.HTTP_400_BAD_REQUEST)
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
 
         user = authenticate(request, email=email, password=password)
 
-        # user = User.objects.filter(email=email).first()
-
         if user is not None:
             token = get_tokens_for_user(user)["access"]
-
             response_data = {
                 "status_code": status.HTTP_200_OK,
                 "message": "Authentication successful",
@@ -76,15 +72,15 @@ class LoginView(APIView):
             }
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
 
-
-class GetUserDetail(APIView):
+class GetUserDetail(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializers
 
     def get(self, request):
-        print(request)
+        #print(request)
         user = request.user
 
-        serializer = UserSerializers(user)
+        serializer = self.serializer_class(user)
 
         response = Response(
             {
@@ -96,7 +92,9 @@ class GetUserDetail(APIView):
 
         return response
 
-
+    def get_operation_id(self):
+        return "get_user_detail"
+    
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -127,10 +125,12 @@ class LogoutView(APIView):
 
 
 class UserProfile(APIView):
+
     """
     Retrieve, update, or delete a user profile.
     """
-
+    serializer_class = UserSerializers
+    update_serializer_class = UserUpdateSerializer
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
@@ -141,7 +141,7 @@ class UserProfile(APIView):
         """Retrieve a user profile"""
 
         user = self.get_object(pk)
-        serializer = UserSerializers(user)
+        serializer = self.serializer_class(user)
         response_data = {
             "status_code": status.HTTP_200_OK,
             "message": "User succedfully retrieved",
@@ -150,11 +150,14 @@ class UserProfile(APIView):
 
         return Response(response_data)
 
+    def get_operation_id(self):
+        return "get_user_profile"
+    
     def patch(self, request, pk, format=None):
         """Update user profile"""
 
         user = self.get_object(pk)
-        serializer = UserUpdateSerializer(user, data=request.data)
+        serializer = self.update_serializer_class(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             response_data = {
@@ -186,9 +189,10 @@ class UserProfile(APIView):
 
 class ProfilePicsCreation(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = ProfilePicsSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = ProfilePicsSerializer(
+        serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
@@ -213,7 +217,7 @@ class ProfilePicsCreation(APIView):
     def get(self, request):
         qs = ProfilePic.objects.all()
         if qs.exists():
-            qs_serializer = ProfilePicsSerializer(qs, many=True)
+            qs_serializer = self.serializer_class(qs, many=True)
             return Response(
                 {
                     "status_code": status.HTTP_200_OK,
@@ -235,9 +239,10 @@ class ProfilePicsCreation(APIView):
 
 class CoverPhotoCreation(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = CoverPhotosSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = CoverPhotosSerializer(
+        serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
@@ -260,9 +265,9 @@ class CoverPhotoCreation(APIView):
         )
 
     def get(self, request):
-        qs = ProfilePic.objects.all()
+        qs = CoverPhoto.objects.all()
         if qs.exists():
-            qs_serializer = CoverPhotosSerializer(qs, many=True)
+            qs_serializer = self.serializer_class(qs, many=True)
             return Response(
                 {
                     "status_code": status.HTTP_200_OK,

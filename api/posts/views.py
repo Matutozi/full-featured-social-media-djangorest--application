@@ -3,16 +3,17 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import Post
-from .serializers import PostSerializer
+from .models import Post, PostComment
+from .serializers import PostSerializer, PostCommentSerializer
 from django.http import Http404
-
+from drf_spectacular.utils import extend_schema
 
 class PostCreateView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
 
     def post(self, request):
-        serializer = PostSerializer(data=request.data, context={"request": request})
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(
@@ -31,7 +32,6 @@ class PostCreateView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
-
 
 class PostListView(generics.ListAPIView):
     """Endpoint to retrieve all posts, or filter by username."""
@@ -52,6 +52,7 @@ class PostView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
 
     def get_object(self, post_id):
         try:
@@ -62,7 +63,7 @@ class PostView(APIView):
     def get(self, request, post_id, format=None):
         """Retrieve a post"""
         post = self.get_object(post_id)
-        serializer = PostSerializer(post)
+        serializer = self.serializer_class(post)
         response_data = {
             "status_code": status.HTTP_200_OK,
             "message": "Post successfully retrieved",
@@ -83,7 +84,7 @@ class PostView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = PostSerializer(post, data=request.data, partial=True)
+        serializer = self.serializer_class(post, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             response_data = {
@@ -123,3 +124,15 @@ class PostView(APIView):
             },
             status=status.HTTP_204_NO_CONTENT,
         )
+    
+class PostCommentListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostCommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        return PostComment.objects.filter(post_id=post_id)
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs['post_id']
+        serializer.save(post_id=post_id, user=self.request.user)

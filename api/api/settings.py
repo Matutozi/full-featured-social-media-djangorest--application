@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "notifications",
     "message_app",
     "auth_app",
+    "drf_spectacular"
 ]
 
 MIDDLEWARE = [
@@ -92,7 +93,8 @@ WSGI_APPLICATION = "api.wsgi.application"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -202,3 +204,11 @@ SIMPLE_JWT = {
 APPEND_SLASH = False
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Social Media API',
+    'DESCRIPTION': 'Implementing various functionality using drf for a social media application',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ProfilePic
+from .models import User, ProfilePic, CoverPhoto
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -63,11 +63,29 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "is_active",
         ]
 
+
 class ProfilePicsSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField() 
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = ProfilePic
+        fields = ["id", "username", "image", "created_at", "updated_at"]
+        extra_kwargs = {"user": {"read_only": True}}
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+        return super().create(validated_data)
+
+    def get_username(self, obj):
+        return obj.user.username
+
+
+class CoverPhotosSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CoverPhoto
         fields = ["id", "username", "image", "created_at", "updated_at"]
         extra_kwargs = {"user": {"read_only": True}}
 

@@ -6,6 +6,7 @@ from .serializers import (
     CreateUserSerializer,
     UserUpdateSerializer,
     ProfilePicsSerializer,
+    CoverPhotosSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -187,7 +188,9 @@ class ProfilePicsCreation(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = ProfilePicsSerializer(data=request.data, context= {"request": request})
+        serializer = ProfilePicsSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(
@@ -224,6 +227,55 @@ class ProfilePicsCreation(APIView):
                 {
                     "status_code": status.HTTP_404_NOT_FOUND,
                     "message": "No profile pictures found.",
+                    "data": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+class CoverPhotoCreation(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CoverPhotosSerializer(
+            data=request.data, context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(
+                {
+                    "status_code": status.HTTP_201_CREATED,
+                    "message": "Cover Photo uploaded successfully.",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": "Failed to upload Cover Photo.",
+                "data": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def get(self, request):
+        qs = ProfilePic.objects.all()
+        if qs.exists():
+            qs_serializer = CoverPhotosSerializer(qs, many=True)
+            return Response(
+                {
+                    "status_code": status.HTTP_200_OK,
+                    "message": "Cover Photo retrieved successfully.",
+                    "data": qs_serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "message": "NO Photo found.",
                     "data": [],
                 },
                 status=status.HTTP_404_NOT_FOUND,

@@ -8,6 +8,7 @@ from .views import (
     LogoutView,
     UserProfile,
     ProfilePicsCreation,
+    CoverPhotoCreation,
 )
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import (
@@ -19,8 +20,9 @@ urlpatterns = [
     path("login", LoginView.as_view()),
     path("", GetUserDetail.as_view()),
     path("<uuid:pk>/", UserProfile.as_view()),
-    path("logout/", TokenBlacklistView.as_view()),
+    path("logout/", LogoutView.as_view()),
     path("profile-pic/", ProfilePicsCreation.as_view()),
+    path("coverphoto/", CoverPhotoCreation.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

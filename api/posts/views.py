@@ -34,7 +34,7 @@ class PostCreateView(APIView):
 
 
 class PostListView(generics.ListAPIView):
-    """this endpoint used to get all the posts by a user or all posts"""
+    """Endpoint to retrieve all posts, or filter by username."""
 
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
@@ -101,6 +101,7 @@ class PostView(APIView):
         return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, post_id, format=None):
+            
         """Delete a post"""
         post = self.get_object(post_id)
 
@@ -114,9 +115,11 @@ class PostView(APIView):
             )
 
         post.delete()
-        response_data = {
-            "status_code": status.HTTP_204_NO_CONTENT,
-            "message": "Post deleted successfully.",
-            "data": {},
-        }
-        return Response(response_data, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {
+                "status_code": status.HTTP_204_NO_CONTENT,
+                "message": "Post deleted successfully.",
+                "data": {},
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )

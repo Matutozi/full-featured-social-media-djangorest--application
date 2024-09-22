@@ -39,10 +39,18 @@ class PostReaction(models.Model):
     """
     Model representing a reaction (like, etc.) on a post.
     """
+    REACTION_CHOICES = [
+    ('like', 'Like'),
+    ('love', 'Love'),
+    ('laugh', 'Laugh'),
+    ('sad', 'Sad'),
+    ('angry', 'Angry'),
+]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="reactions")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reaction_type = models.CharField(max_length=10, choices=REACTION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

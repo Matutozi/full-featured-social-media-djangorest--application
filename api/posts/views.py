@@ -6,14 +6,17 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Post, PostComment
 from .serializers import PostSerializer, PostCommentSerializer
 from django.http import Http404
-from drf_spectacular.utils import extend_schema
+from rest_framework.exceptions import NotFound
+
 
 class PostCreateView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data, context={"request": request})
+    def post(self, request, format=None):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(
@@ -32,6 +35,7 @@ class PostCreateView(APIView):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
+
 
 class PostListView(generics.ListAPIView):
     """Endpoint to retrieve all posts, or filter by username."""
@@ -102,7 +106,6 @@ class PostView(APIView):
         return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, post_id, format=None):
-            
         """Delete a post"""
         post = self.get_object(post_id)
 
@@ -124,15 +127,21 @@ class PostView(APIView):
             },
             status=status.HTTP_204_NO_CONTENT,
         )
-    
+
+
 class PostCommentListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostCommentSerializer
+    lookup_field = "post_id"
 
     def get_queryset(self):
-        post_id = self.kwargs['post_id']
+        post_id = self.kwargs["post_id"]
+        if not Post.objects.filter(id=post_id).exists():
+            raise NotFound("Post not found.")
         return PostComment.objects.filter(post_id=post_id)
 
     def perform_create(self, serializer):
-        post_id = self.kwargs['post_id']
+        post_id = self.kwargs["post_id"]
         serializer.save(post_id=post_id, user=self.request.user)
+
+

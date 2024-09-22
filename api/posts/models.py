@@ -50,7 +50,7 @@ class PostReaction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="reactions")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reaction_type = models.CharField(max_length=10, choices=REACTION_CHOICES)
+    reaction_type = models.CharField(max_length=10, choices=REACTION_CHOICES, default="like")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

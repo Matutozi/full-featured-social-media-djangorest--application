@@ -16,7 +16,7 @@ This is a full-featured social media application built using **Django Rest Frame
 - [ ] Bio, contact information, and social links.
 
 ### Posts & Feeds:
-- [ ] Create, edit, and delete posts (text, images, and videos).
+- [x] Create, edit, and delete posts (text, images, and videos).
 - [ ] Like, comment, and share functionality.
 - [ ] Real-time feed updates using Django Channels (for WebSocket).
 

@@ -38,9 +38,8 @@ ALLOWED_HOSTS = [".vercel.app", ".now.sh", "localhost", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "daphne",
-    "channels"
-    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -212,7 +211,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Implementing various functionality using drf for a social media application',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
 }
 
-ASGI_APPLICATION = "myproject.asgi.application"
+ASGI_APPLICATION = "api.asgi.application"

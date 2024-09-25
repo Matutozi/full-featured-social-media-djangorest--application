@@ -24,7 +24,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view()),
     path("profile-pic/", ProfilePicsCreation.as_view()),
     path("coverphoto/", CoverPhotoCreation.as_view()),
-    path('follow/<int:user_id>/', FollowViewSet.as_view({'post': 'create', 'delete': 'destroy'}), name='follow'),
+    path('follow/<int:user_id>/', FollowViewSet.as_view()),
 
 ]
 

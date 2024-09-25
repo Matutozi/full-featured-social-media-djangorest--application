@@ -9,6 +9,7 @@ from .views import (
     UserProfile,
     ProfilePicsCreation,
     CoverPhotoCreation,
+    FollowViewSet
 )
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import (
@@ -23,6 +24,8 @@ urlpatterns = [
     path("logout/", LogoutView.as_view()),
     path("profile-pic/", ProfilePicsCreation.as_view()),
     path("coverphoto/", CoverPhotoCreation.as_view()),
+    path('follow/<int:user_id>/', FollowViewSet.as_view({'post': 'create', 'delete': 'destroy'}), name='follow'),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

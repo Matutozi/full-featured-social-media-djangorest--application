@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ProfilePic, CoverPhoto
+from .models import User, ProfilePic, CoverPhoto, Follow
 from drf_spectacular.utils import extend_schema_field
 
 
@@ -104,3 +104,9 @@ class CoverPhotosSerializer(serializers.ModelSerializer):
     @extend_schema_field(str)
     def get_username(self, obj):
         return obj.user.username
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ('follower', 'followed', 'created_at')

@@ -9,6 +9,7 @@ from .serializers import (
     ProfilePicsSerializer,
     CoverPhotosSerializer,
     LoginSerializer,
+    FollowSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -17,7 +18,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import Http404
 from rest_framework import status
-from .models import User
+from .models import User, Follow
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from .models import ProfilePic, CoverPhoto
@@ -36,6 +37,7 @@ def get_tokens_for_user(user):
 
 class RegisterView(APIView):
     serializer_class = CreateUserSerializer
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,8 +52,8 @@ class LoginView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
+        email = serializer.validated_data["email"]
+        password = serializer.validated_data["password"]
 
         user = authenticate(request, email=email, password=password)
 
@@ -72,12 +74,13 @@ class LoginView(GenericAPIView):
             }
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class GetUserDetail(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializers
 
     def get(self, request):
-        #print(request)
+        # print(request)
         user = request.user
 
         serializer = self.serializer_class(user)
@@ -94,7 +97,8 @@ class GetUserDetail(GenericAPIView):
 
     def get_operation_id(self):
         return "get_user_detail"
-    
+
+
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -125,12 +129,13 @@ class LogoutView(APIView):
 
 
 class UserProfile(APIView):
-
     """
     Retrieve, update, or delete a user profile.
     """
+
     serializer_class = UserSerializers
     update_serializer_class = UserUpdateSerializer
+
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
@@ -152,7 +157,7 @@ class UserProfile(APIView):
 
     def get_operation_id(self):
         return "get_user_profile"
-    
+
     def patch(self, request, pk, format=None):
         """Update user profile"""
 
@@ -282,6 +287,63 @@ class CoverPhotoCreation(APIView):
                     "status_code": status.HTTP_404_NOT_FOUND,
                     "message": "NO Photo found.",
                     "data": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+class FollowViewSet(APIView):
+    serializer_class = FollowSerializer
+    authentication_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        if user_id == request.user.id:
+            return Response(
+                {
+                    "status_code": status.HTTP_406_NOT_ACCEPTABLE,
+                    "message": "Cannot follow yourself",
+                },
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+
+        try:
+            follow = Follow.objects.create(
+                follower=request.user, followed=User.objects.get(id=user_id)
+            )
+            serializer = self.serializer_class(follow)
+            response_data = {
+                "status_code": status.HTTP_201_CREATED,
+                "message": f"{request.user.username} followed successfully",
+                "data": serializer.data,
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "message": "User with ID {} not found".format(user_id),
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    def delete(self, request, user_id):
+        follow = Follow.objects.filter(
+            follower=request.user, followed=User.objects.get(id=user_id)
+        ).first()
+        if follow:
+            follow.delete()
+            return Response(
+                {
+                    "status_code": status.HTTP_204_NO_CONTENT,
+                    "message": "User successfully unfollowed",
+                },
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        else:
+            return Response(
+                {
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "message": "You are not following this user",
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )

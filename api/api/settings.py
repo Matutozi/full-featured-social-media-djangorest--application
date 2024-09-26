@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "message_app",
     "auth_app",
     "drf_spectacular",
+    "cloudvault",
 ]
 
 MIDDLEWARE = [
@@ -200,8 +201,8 @@ SIMPLE_JWT = {
 
 
 APPEND_SLASH = True
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+# MEDIA_URL = "/media/"
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Social Media API",
@@ -220,3 +221,11 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CLOUDINARY = {
+    "cloud_name": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "api_key": os.environ.get("CLOUDINARY_API_KEY"),
+    "api_secret": os.environ.get("CLOUDINARY_API_SECRET"),
+}
+
+DEFAULT_FILE_STORAGE = "cloudvault.cloud_storage.CloudinaryStorage"

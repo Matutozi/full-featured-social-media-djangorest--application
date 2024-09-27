@@ -672,7 +672,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProfilePics'
           description: ''
-  /api/users/register/:
+  /api/users/register:
     post:
       operationId: users_register_create
       tags:

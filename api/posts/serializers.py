@@ -11,6 +11,13 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Post.objects.create(**validated_data)
 
+    def validate(self, data):
+        if not (data.get("content") or data.get("image") or data.get("video")):
+            raise serializers.ValidationError(
+                "At least one of content, image, or video must be provided."
+            )
+        return data
+
 
 class PostCommentSerializer(serializers.ModelSerializer):
     class Meta:

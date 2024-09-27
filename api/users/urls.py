@@ -9,7 +9,7 @@ from .views import (
     UserProfile,
     ProfilePicsCreation,
     CoverPhotoCreation,
-    FollowViewSet
+    FollowViewSet,
 )
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import (
@@ -17,15 +17,14 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path("register", RegisterView.as_view()),
+    path("register/", RegisterView.as_view()),
     path("login", LoginView.as_view()),
-    path("user_detail", GetUserDetail.as_view(), name="get_user_details"),
+    # path("user_detail", GetUserDetail.as_view(), name="get_user_details"),
     path("<uuid:pk>/", UserProfile.as_view(), name="user_profile"),
     path("logout/", LogoutView.as_view()),
     path("profile-pic/", ProfilePicsCreation.as_view()),
     path("coverphoto/", CoverPhotoCreation.as_view()),
-    path('follow/<int:user_id>/', FollowViewSet.as_view()),
-
+    path("follow/<int:user_id>/", FollowViewSet.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

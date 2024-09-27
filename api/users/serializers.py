@@ -43,11 +43,17 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "first_name", "last_name", "email", "password"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
 
         return user
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop("password", None)
+        return representation
 
 
 class LoginSerializer(serializers.Serializer):
@@ -109,4 +115,4 @@ class CoverPhotosSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
-        fields = ('follower', 'followed', 'created_at')
+        fields = ("follower", "followed", "created_at")

@@ -22,6 +22,7 @@ from .models import User, Follow
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from .models import ProfilePic, CoverPhoto
+from django.views.decorators.csrf import csrf_exempt
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -42,7 +43,12 @@ class RegisterView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_data = {
+            "status_code": status.HTTP_201_CREATED,
+            "message": "User created successfully",
+            "data": serializer.data,
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class LoginView(GenericAPIView):
@@ -59,10 +65,13 @@ class LoginView(GenericAPIView):
 
         if user is not None:
             token = get_tokens_for_user(user)["access"]
+
+            user_data = UserSerializers(user).data
+
             response_data = {
                 "status_code": status.HTTP_200_OK,
                 "message": "Authentication successful",
-                "data": {"access_token": token},
+                "data": {"access_token": token, "user": user_data},
             }
             return Response(response_data, status=status.HTTP_200_OK)
 
@@ -101,15 +110,15 @@ class GetUserDetail(GenericAPIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @csrf_exempt
     def post(self, request):
         try:
-            # refresh_token = request.data.get("refresh")
+            refresh_token = request.data.get("refresh")
             access_token = request.headers.get("Authorization").split()[1]
 
             print(access_token)
 
-            token = RefreshToken(access_token)
+            token = RefreshToken(refresh_token)
             token.blacklist()
 
             response_data = {

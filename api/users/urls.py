@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path("register/", RegisterView.as_view()),
+    path("register", RegisterView.as_view()),
     path("login", LoginView.as_view()),
     # path("user_detail", GetUserDetail.as_view(), name="get_user_details"),
     path("<uuid:pk>/", UserProfile.as_view(), name="user_profile"),

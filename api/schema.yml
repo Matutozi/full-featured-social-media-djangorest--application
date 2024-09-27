@@ -92,7 +92,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/posts/create/:
+  /api/posts/create:
     post:
       operationId: posts_create_create
       tags:

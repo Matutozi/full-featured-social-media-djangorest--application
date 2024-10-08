@@ -90,6 +90,8 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "api.asgi.application"
+
 WSGI_APPLICATION = "api.wsgi.application"
 
 REST_FRAMEWORK = {
@@ -211,7 +213,6 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-ASGI_APPLICATION = "api.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {

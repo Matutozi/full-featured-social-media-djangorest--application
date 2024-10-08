@@ -3,6 +3,9 @@ import uuid
 # Create your models here.
 from users.models import User
 
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 class Post(models.Model):
     """
     Model representing a social media post.

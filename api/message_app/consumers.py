@@ -5,15 +5,16 @@ from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from django.core.files.base import ContentFile
-
+from django.contrib.auth.models import AnonymousUser
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         print("WebSocket connected")
 
         self.user = self.scope["user"]
-        print(self.user)
-        print(self.user.username)
+        
+        #print(self.user)
+        #xprint(self.user.username)
 
         self.user_id = self.scope["url_route"]["kwargs"].get("user_id")
         self.group_id = self.scope["url_route"]["kwargs"].get("group_id")
@@ -35,7 +36,7 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
         print(f"WebSocket connected and joined room: {self.room_group_name}")
 
-        self.send_past_messages()
+        #self.send_past_messages()
 
     def disconnect(self, close_code):
         # Leave room group
@@ -95,7 +96,7 @@ class ChatConsumer(WebsocketConsumer):
 
         if individual:
             try:
-                print(dir(sender))
+                #print(dir(sender))
                 sender = get_user_model().objects.get(id=sender.id)
             except User.DoesNotExist:
                 print(f"User with id {sender.id} does not exist.")

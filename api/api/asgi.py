@@ -11,7 +11,7 @@ from channels.auth import AuthMiddlewareStack
 # from channels.security.websocket import AllowedHostsOriginValidator
 from message_app.routing import websocket_urlpatterns as message_app_websocket
 from posts.routing import websocket_urlpatterns as posts_websocket
-
+from api.middleware import QueryAuthMiddleware
 
 application = get_asgi_application()
 
@@ -20,6 +20,8 @@ websocket_urlpatterns = message_app_websocket + posts_websocket
 application = ProtocolTypeRouter(
     {
         "http": application,
-        "websocket": (AuthMiddlewareStack(URLRouter(websocket_urlpatterns))),
+        "websocket": QueryAuthMiddleware(
+            URLRouter(websocket_urlpatterns)
+        ),
     }
 )

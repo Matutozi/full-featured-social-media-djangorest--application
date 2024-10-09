@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG") != "False"
 
-ALLOWED_HOSTS = [".vercel.app", ".now.sh", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [".vercel.app", ".now.sh", "localhost", "127.0.0.1", "full-featured-social-media-djangorest.onrender.com"]
 
 
 # Application definition
@@ -54,12 +54,12 @@ INSTALLED_APPS = [
     "posts",
     "notifications",
     "message_app",
-    "auth_app",
     "drf_spectacular",
     "cloudvault",
 ]
 
 MIDDLEWARE = [
+    #"django_channel.middleware.QueryAuthMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",

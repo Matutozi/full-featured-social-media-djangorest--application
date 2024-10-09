@@ -115,7 +115,7 @@ class GroupSerializers(serializers.ModelSerializer):
 
 
 class GroupMessageSerializer(serializers.ModelSerializer):
-    """Serializet that"""
+    """Serialize that"""
 
     sender = UserSerializers(read_only=True)
 
@@ -131,12 +131,13 @@ class GroupMessageSerializer(serializers.ModelSerializer):
         sender = request.user
 
         validated_data.pop("sender", None)
-        group_id = validated_data.get("group")
+        group_id = validated_data.pop("group", None)
+        
         if not group_id:
             raise serializers.ValidationError("Group must be specified")
 
         group_instance = get_object_or_404(Group, id=group_id)
-        validated_data.pop("sender", None)
-        validated_data.pop("group", None)
+        #validated_data.pop("sender", None)
+        #validated_data.pop("group", None)
 
-        return GroupMessage.objects.create(sender=sender, **validated_data)
+        return GroupMessage.objects.create(sender=sender, group=group_instance, **validated_data)

@@ -88,6 +88,8 @@ class ChatConsumer(WebsocketConsumer):
         message = text_data_json.get("message")
         attachment = text_data_json.get("attachment")
         receiver_id = text_data_json.get("receiver_id")
+        if receiver_id is not None:
+            receiver_id = str(receiver_id)
         sender = self.scope["user"]
 
         if not sender.is_authenticated:
@@ -137,7 +139,11 @@ class ChatConsumer(WebsocketConsumer):
             )
 
             serializer = MessageSerializers(instance=_message)
-            self.send(text_data=json.dumps(serializer.data))
+
+            response_data = serializer.data
+            response_data['sender'] = str(response_data['sender'])
+            response_data['receiver'] = str(response_data['receiver'])
+            self.send(text_data=json.dumps(response_data))
 
         else:
             if not Group.objects.filter(id=self.group_id, members=sender).exists():
@@ -179,7 +185,7 @@ class ChatConsumer(WebsocketConsumer):
         else:
             # Fetch past individual messages
             messages = Message.objects.filter(
-                receiver=self.user, sender=self.user
+                receiver=self.user.id, sender=self.user.id
             ).order_by("timestamp")
             serializer = MessageSerializers(messages, many=True)
 

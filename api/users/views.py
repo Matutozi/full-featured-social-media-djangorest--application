@@ -14,7 +14,6 @@ from .serializers import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import Http404
 from rest_framework import status
@@ -23,6 +22,8 @@ from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from .models import ProfilePic, CoverPhoto
 from django.views.decorators.csrf import csrf_exempt
+from response import BaseResponseView
+
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -36,22 +37,23 @@ def get_tokens_for_user(user):
     }
 
 
-class RegisterView(APIView):
+class RegisterView(APIView, BaseResponseView):
+    """Method to register a New User"""
+
     serializer_class = CreateUserSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        response_data = {
-            "status_code": status.HTTP_201_CREATED,
-            "message": "User created successfully",
-            "data": serializer.data,
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        return self.generate_response(
+            status.HTTP_201_CREATED, "User Created Successfully", serializer.data
+        )
 
 
 class LoginView(GenericAPIView):
+    """Method to login a user"""
+
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -65,13 +67,19 @@ class LoginView(GenericAPIView):
 
         if user is not None:
             token = get_tokens_for_user(user)["access"]
+            refresh_token = get_tokens_for_user(user)["refresh"]
 
+            # print(refresh_token)
             user_data = UserSerializers(user).data
 
             response_data = {
                 "status_code": status.HTTP_200_OK,
                 "message": "Authentication successful",
-                "data": {"access_token": token, "user": user_data},
+                "data": {
+                    "access_token": token,
+                    "refresh_token": refresh_token,
+                    "user": user_data,
+                },
             }
             return Response(response_data, status=status.HTTP_200_OK)
 
@@ -85,6 +93,8 @@ class LoginView(GenericAPIView):
 
 
 class GetUserDetail(GenericAPIView):
+    """Method to get user details"""
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializers
 
@@ -108,36 +118,32 @@ class GetUserDetail(GenericAPIView):
         return "get_user_detail"
 
 
-class LogoutView(APIView):
+class LogoutView(APIView, BaseResponseView):
+    """Method to logout a user"""
+
     permission_classes = [IsAuthenticated]
+
     @csrf_exempt
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh")
             access_token = request.headers.get("Authorization").split()[1]
 
-            print(access_token)
+            if not refresh_token:
+                raise AuthenticationFailed("Refresh Token not provided")
 
             token = RefreshToken(refresh_token)
             token.blacklist()
 
-            response_data = {
-                "status_code": status.HTTP_200_OK,
-                "message": "Logout Successful.",
-                "data": {},
-            }
-            return Response(response_data, status=status.HTTP_200_OK)
+            return self.generate_response(status.HTTP_200_OK, "Logout Successful")
 
         except AuthenticationFailed:
-            response_data = {
-                "status_code": status.HTTP_400_BAD_REQUEST,
-                "message": "Bad request or token invalid",
-                "data": {},
-            }
-            return Response(response_data)
+            return self.generate_response(
+                status.HTTP_400_BAD_REQUEST, "Bad request or token invalid"
+            )
 
 
-class UserProfile(APIView):
+class UserProfile(APIView, BaseResponseView):
     """
     Retrieve, update, or delete a user profile.
     """
@@ -146,6 +152,8 @@ class UserProfile(APIView):
     update_serializer_class = UserUpdateSerializer
 
     def get_object(self, pk):
+        """method to get the id from the route"""
+
         try:
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
@@ -156,13 +164,9 @@ class UserProfile(APIView):
 
         user = self.get_object(pk)
         serializer = self.serializer_class(user)
-        response_data = {
-            "status_code": status.HTTP_200_OK,
-            "message": "User succedfully retrieved",
-            "data": serializer.data,
-        }
-
-        return Response(response_data)
+        return self.generate_response(
+            status.HTTP_200_OK, "Message Sent", serializer.data
+        )
 
     def get_operation_id(self):
         return "get_user_profile"
@@ -171,41 +175,35 @@ class UserProfile(APIView):
         """Update user profile"""
 
         user = self.get_object(pk)
-        serializer = self.update_serializer_class(user, data=request.data)
+        serializer = self.update_serializer_class(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            response_data = {
-                "status_code": status.HTTP_200_OK,
-                "message": "User successfully Updated",
-                "data": serializer.data,
-            }
-            return Response(response_data)
+            return self.generate_response(
+                status.HTTP_200_OK, "User successfully updated", serializer.data
+            )
 
-        response_data = {
-            "status_code": status.HTTP_400_BAD_REQUEST,
-            "message": "Failed to update user.",
-            "data": serializer.errors,
-        }
-        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        return self.generate_response(
+            status.HTTP_400_BAD_REQUEST, "Failed to update user", serializer.errors
+        )
 
     def delete(self, request, pk, format=None):
         """Delete a user profile"""
 
         user = self.get_object(pk)
         user.delete()
-        response_data = {
-            "status_code": status.HTTP_204_NO_CONTENT,
-            "message": "User deleted successfully.",
-            "data": {},
-        }
-        return Response(response_data)
+        return self.generate_response(
+            status.HTTP_204_NO_CONTENT, "User successfully deleted"
+        )
 
 
 class ProfilePicsCreation(APIView):
+    """Nethod to add profile photo"""
+
     permission_classes = [IsAuthenticated]
     serializer_class = ProfilePicsSerializer
 
     def post(self, request, *args, **kwargs):
+        """Method to create a cover photo"""
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -229,6 +227,7 @@ class ProfilePicsCreation(APIView):
         )
 
     def get(self, request):
+        """Method to get cover photo"""
         qs = ProfilePic.objects.all()
         if qs.exists():
             qs_serializer = self.serializer_class(qs, many=True)
@@ -252,10 +251,13 @@ class ProfilePicsCreation(APIView):
 
 
 class CoverPhotoCreation(APIView):
+    """Method to add a cover photo"""
+
     permission_classes = [IsAuthenticated]
     serializer_class = CoverPhotosSerializer
 
     def post(self, request, *args, **kwargs):
+        """Method to create a cover photo"""
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
@@ -279,6 +281,7 @@ class CoverPhotoCreation(APIView):
         )
 
     def get(self, request):
+        """Method to get cover photo"""
         qs = CoverPhoto.objects.all()
         if qs.exists():
             qs_serializer = self.serializer_class(qs, many=True)
@@ -301,11 +304,14 @@ class CoverPhotoCreation(APIView):
             )
 
 
-class FollowViewSet(APIView):
+class FollowViewSet(APIView, BaseResponseView):
+    """View for follow and unfollow functionality"""
+
     serializer_class = FollowSerializer
-    authentication_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
+        """Method to follow a user"""
         if user_id == request.user.id:
             return Response(
                 {
@@ -316,6 +322,14 @@ class FollowViewSet(APIView):
             )
 
         try:
+            user_to_follow = User.objects.get(id=user_id)
+            if Follow.objects.filter(
+                follower=request.user, followed=user_to_follow
+            ).exists():
+                return self.generate_response(
+                    status.HTTP_400_BAD_REQUEST, "You alreday follow this user"
+                )
+            
             follow = Follow.objects.create(
                 follower=request.user, followed=User.objects.get(id=user_id)
             )
@@ -325,6 +339,7 @@ class FollowViewSet(APIView):
                 "message": f"{request.user.username} followed successfully",
                 "data": serializer.data,
             }
+            #add the notification here
             return Response(response_data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
             return Response(
@@ -336,6 +351,8 @@ class FollowViewSet(APIView):
             )
 
     def delete(self, request, user_id):
+        """Method to unfollow a user"""
+
         follow = Follow.objects.filter(
             follower=request.user, followed=User.objects.get(id=user_id)
         ).first()

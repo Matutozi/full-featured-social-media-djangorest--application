@@ -21,19 +21,19 @@ This is a full-featured social media application built using **Django Rest Frame
 - [ ] Real-time feed updates using Django Channels (for WebSocket).
 
 ### Followers & Following:
-- [ ] Follow/unfollow functionality.
-- [ ] Notifications for follows and follow-backs.
+- [x] Follow/unfollow functionality.
+- [x] Notifications for follows and follow-backs.
 - [ ] Display follower and following lists.
 
 ### Notifications:
-- [ ] In-app notifications for likes, comments, shares, and follows.
-- [ ] Real-time notifications using Server-Sent Events (SSE).
+- [x] In-app notifications for likes, comments, shares, and follows.
+- [x] Real-time notifications using Server-Sent Events (SSE).
 - [ ] Notification settings and preferences.
 
 ### Messaging:
 - [x] Real-time private messaging between users using Django Channels.
 - [x] Group chats and chat rooms.
-- [] File sharing within chats (images, documents, etc.).
+- [ ] File sharing within chats (images, documents, etc.).
 
 ### Search & Discovery:
 - [ ] Search users, posts, hashtags, and keywords.

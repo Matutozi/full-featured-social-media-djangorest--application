@@ -4,6 +4,315 @@ info:
   version: 1.0.0
   description: Implementing various functionality using drf for a social media application
 paths:
+  /api/messages/{message_id}/delete:
+    delete:
+      operationId: messages_delete_destroy
+      description: View to delete a message
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/messages/{message_id}/update/:
+    put:
+      operationId: messages_update_update
+      description: View to update a message
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageSerializers'
+          description: ''
+    patch:
+      operationId: messages_update_partial_update
+      description: View to update a message
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMessageSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMessageSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMessageSerializers'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageSerializers'
+          description: ''
+  /api/messages/{receiver_id}:
+    get:
+      operationId: messages_list
+      description: View to list all messages between two users
+      parameters:
+      - in: path
+        name: receiver_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - messages
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageList'
+          description: ''
+  /api/messages/conversations:
+    get:
+      operationId: messages_conversations_list
+      description: View to list all conversations between user and other users
+      tags:
+      - messages
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSerializers'
+          description: ''
+  /api/messages/create/:
+    post:
+      operationId: messages_create_create
+      description: View to create a new message between two users
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MessageSerializers'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageSerializers'
+          description: ''
+  /api/messages/group-messages/{message_id}/update/:
+    put:
+      operationId: messages_group_messages_update_update
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupMessage'
+          description: ''
+    patch:
+      operationId: messages_group_messages_update_partial_update
+      parameters:
+      - in: path
+        name: message_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGroupMessage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGroupMessage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGroupMessage'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupMessage'
+          description: ''
+  /api/messages/group/{group_id}/message/create/:
+    post:
+      operationId: messages_group_message_create_create
+      parameters:
+      - in: path
+        name: group_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GroupMessage'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupMessage'
+          description: ''
+  /api/messages/group/{group_id}/messages/:
+    get:
+      operationId: messages_group_messages_list
+      parameters:
+      - in: path
+        name: group_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupMessage'
+          description: ''
+  /api/messages/group/create/:
+    post:
+      operationId: messages_group_create_create
+      description: View to create a new group
+      tags:
+      - messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GroupSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GroupSerializers'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupSerializers'
+          description: ''
+  /api/messages/group/messages/{id}/delete/:
+    delete:
+      operationId: messages_group_messages_delete_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - messages
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/posts/:
     get:
       operationId: posts_list
@@ -289,6 +598,7 @@ paths:
   /api/users/coverphoto/:
     get:
       operationId: users_coverphoto_retrieve
+      description: Method to get cover photo
       tags:
       - users
       security:
@@ -302,6 +612,7 @@ paths:
           description: ''
     post:
       operationId: users_coverphoto_create
+      description: Method to create a cover photo
       tags:
       - users
       requestBody:
@@ -328,6 +639,7 @@ paths:
   /api/users/coverphoto{format}:
     get:
       operationId: users_coverphoto_formatted_retrieve
+      description: Method to get cover photo
       parameters:
       - in: path
         name: format
@@ -349,6 +661,7 @@ paths:
           description: ''
     post:
       operationId: users_coverphoto_formatted_create
+      description: Method to create a cover photo
       parameters:
       - in: path
         name: format
@@ -383,6 +696,7 @@ paths:
   /api/users/follow/{user_id}/:
     post:
       operationId: users_follow_create
+      description: Method to follow a user
       parameters:
       - in: path
         name: user_id
@@ -404,7 +718,7 @@ paths:
               $ref: '#/components/schemas/Follow'
         required: true
       security:
-      - {}
+      - jwtAuth: []
       responses:
         '200':
           content:
@@ -414,6 +728,7 @@ paths:
           description: ''
     delete:
       operationId: users_follow_destroy
+      description: Method to unfollow a user
       parameters:
       - in: path
         name: user_id
@@ -423,13 +738,14 @@ paths:
       tags:
       - users
       security:
-      - {}
+      - jwtAuth: []
       responses:
         '204':
           description: No response body
   /api/users/follow/{user_id}{format}:
     post:
       operationId: users_follow_formatted_create
+      description: Method to follow a user
       parameters:
       - in: path
         name: format
@@ -458,7 +774,7 @@ paths:
               $ref: '#/components/schemas/Follow'
         required: true
       security:
-      - {}
+      - jwtAuth: []
       responses:
         '200':
           content:
@@ -468,6 +784,7 @@ paths:
           description: ''
     delete:
       operationId: users_follow_formatted_destroy
+      description: Method to unfollow a user
       parameters:
       - in: path
         name: format
@@ -484,13 +801,14 @@ paths:
       tags:
       - users
       security:
-      - {}
+      - jwtAuth: []
       responses:
         '204':
           description: No response body
   /api/users/login:
     post:
       operationId: users_login_create
+      description: Method to login a user
       tags:
       - users
       requestBody:
@@ -518,6 +836,7 @@ paths:
   /api/users/login{format}:
     post:
       operationId: users_login_formatted_create
+      description: Method to login a user
       parameters:
       - in: path
         name: format
@@ -553,6 +872,7 @@ paths:
   /api/users/logout/:
     post:
       operationId: users_logout_create
+      description: Method to logout a user
       tags:
       - users
       security:
@@ -563,6 +883,7 @@ paths:
   /api/users/logout{format}:
     post:
       operationId: users_logout_formatted_create
+      description: Method to logout a user
       parameters:
       - in: path
         name: format
@@ -581,6 +902,7 @@ paths:
   /api/users/profile-pic/:
     get:
       operationId: users_profile_pic_retrieve
+      description: Method to get cover photo
       tags:
       - users
       security:
@@ -594,6 +916,7 @@ paths:
           description: ''
     post:
       operationId: users_profile_pic_create
+      description: Method to create a cover photo
       tags:
       - users
       requestBody:
@@ -620,6 +943,7 @@ paths:
   /api/users/profile-pic{format}:
     get:
       operationId: users_profile_pic_formatted_retrieve
+      description: Method to get cover photo
       parameters:
       - in: path
         name: format
@@ -641,6 +965,7 @@ paths:
           description: ''
     post:
       operationId: users_profile_pic_formatted_create
+      description: Method to create a cover photo
       parameters:
       - in: path
         name: format
@@ -675,6 +1000,7 @@ paths:
   /api/users/register:
     post:
       operationId: users_register_create
+      description: Method to register a New User
       tags:
       - users
       requestBody:
@@ -702,6 +1028,7 @@ paths:
   /api/users/register{format}:
     post:
       operationId: users_register_formatted_create
+      description: Method to register a New User
       parameters:
       - in: path
         name: format
@@ -811,6 +1138,62 @@ components:
       - created_at
       - followed
       - follower
+    GroupMessage:
+      type: object
+      description: Serialize that
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        group:
+          type: string
+          format: uuid
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/UserSerializers'
+          readOnly: true
+        text:
+          type: string
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - group
+      - id
+      - sender
+      - text
+      - timestamp
+    GroupSerializers:
+      type: object
+      description: Serializer that creates a new group
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        group_name:
+          type: string
+          maxLength: 255
+        members:
+          type: array
+          items:
+            type: string
+            format: uuid
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - group_name
+      - id
+      - members
     Login:
       type: object
       properties:
@@ -823,6 +1206,115 @@ components:
       required:
       - email
       - password
+    MessageList:
+      type: object
+      description: Serializer to list message details between users
+      properties:
+        sender:
+          $ref: '#/components/schemas/UserSerializers'
+        receiver:
+          $ref: '#/components/schemas/UserSerializers'
+        text:
+          type: string
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - receiver
+      - sender
+      - text
+      - timestamp
+    MessageSerializers:
+      type: object
+      description: Serializer to create a new message
+      properties:
+        text:
+          type: string
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        sender:
+          type: string
+          format: uuid
+          readOnly: true
+        receiver:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - receiver
+      - sender
+      - text
+      - timestamp
+    PatchedGroupMessage:
+      type: object
+      description: Serialize that
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        group:
+          type: string
+          format: uuid
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/UserSerializers'
+          readOnly: true
+        text:
+          type: string
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedMessageSerializers:
+      type: object
+      description: Serializer to create a new message
+      properties:
+        text:
+          type: string
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        sender:
+          type: string
+          format: uuid
+          readOnly: true
+        receiver:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedPost:
       type: object
       properties:

@@ -242,7 +242,8 @@ class GroupMessageListView(BaseResponseView, ListAPIView):
 class GroupMessageDeleteView(BaseResponseView, DestroyAPIView):
     queryset = GroupMessage.objects.all()
     permission_classes = [IsAuthenticated]
-
+    serializer_class = None
+    
     def perform_destroy(self, instance):
         if instance.sender != self.request.user:
             raise PermissionError("You cannot delete this message.")

@@ -122,6 +122,7 @@ class LogoutView(APIView, BaseResponseView):
     """Method to logout a user"""
 
     permission_classes = [IsAuthenticated]
+    serializer_class = None
 
     @csrf_exempt
     def post(self, request):

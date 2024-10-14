@@ -29,16 +29,18 @@ def user_deletion_notification(sender, instance, **kwargs):
 def profile_pics_creation_notification(sender, instance, created, **kwargs):
     """Method that handles the notification for profile pics upload"""
     if created:
+        user = instance.user
         action = f"Profile Pics Uploaded for User: {instance.user.username}"
-        send_notification(instance, action, notification_type="general")
+        send_notification(user, action, notification_type="general")
         notification_event.set()
 
 
 @receiver(post_delete, sender=ProfilePic)
 def profile_pics_deletion_notification(sender, instance, **kwargs):
     """Method that handles the notification for profile pics deletion"""
+    user = instance.user
     action = f"Profile Pics was deleted for User: {instance.user.username}"
-    send_notification(instance, action, notification_type="general")
+    send_notification(user, action, notification_type="general")
     notification_event.set()
 
 
@@ -47,7 +49,7 @@ def cover_photo_creation_notification(sender, instance, created, **kwargs):
     """Method that handles notification for cover photo upload"""
     if created:
         action = f"Cover photo uploaded for user: {instance.user.username}"
-        send_notification(instance, action, notification_type="general")
+        send_notification(instance.user, action, notification_type="general")
         notification_event.set()
 
 
@@ -55,7 +57,7 @@ def cover_photo_creation_notification(sender, instance, created, **kwargs):
 def cover_photo_deletion_notification(sender, instance, **kwargs):
     """Method that handles notification for cover photo deletion"""
     action = f"Cover photo deleted for user: {instance.user.username}"
-    send_notification(instance, action, notification_type="general")
+    send_notification(instance.user, action, notification_type="general")
     notification_event.set()
 
 
@@ -63,7 +65,7 @@ def cover_photo_deletion_notification(sender, instance, **kwargs):
 def follow_notification(sender, instance, created, **kwargs):
     """Method that handles notification when a user is followed"""
     action = f"{instance.follower.username} followed  {instance.followed.username}"
-    send_notification(instance, action, notification_type="follow")
+    send_notification(instance.user, action, notification_type="follow")
     notification_event.set()
 
 
@@ -71,7 +73,7 @@ def follow_notification(sender, instance, created, **kwargs):
 def unfollow_notification(sender, instance, **kwargs):
     """Method that handles notification when a user is unfollowed"""
     action = f"{instance.follower.username} unfollowed {instance.followed.username}"
-    send_notification(instance, action, notification_type="unfollow")
+    send_notification(instance.user, action, notification_type="unfollow")
 
     notification_event.set()
 

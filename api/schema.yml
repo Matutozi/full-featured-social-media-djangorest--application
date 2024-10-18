@@ -401,6 +401,100 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/posts/{post_id}/comment/:
+    get:
+      operationId: posts_comment_list
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - posts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostComment'
+          description: ''
+    post:
+      operationId: posts_comment_create
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostComment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostComment'
+          description: ''
+  /api/posts/{post_id}/react/{reaction_type}/:
+    post:
+      operationId: posts_react_create
+      description: View that adds a reaction to a post
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reaction_type
+        schema:
+          type: string
+        required: true
+      tags:
+      - posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostReaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostReaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostReaction'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostReaction'
+          description: ''
   /api/posts/create:
     post:
       operationId: posts_create_create
@@ -1427,6 +1521,61 @@ components:
       - id
       - updated_at
       - user
+    PostComment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        post:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - comment
+      - created_at
+      - id
+      - post
+      - updated_at
+      - user
+    PostReaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        post:
+          type: string
+          format: uuid
+        user:
+          type: string
+          readOnly: true
+        reaction_type:
+          $ref: '#/components/schemas/ReactionTypeEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - post
+      - user
     ProfilePics:
       type: object
       properties:
@@ -1454,6 +1603,20 @@ components:
       - image
       - updated_at
       - username
+    ReactionTypeEnum:
+      enum:
+      - like
+      - love
+      - laugh
+      - sad
+      - angry
+      type: string
+      description: |-
+        * `like` - Like
+        * `love` - Love
+        * `laugh` - Laugh
+        * `sad` - Sad
+        * `angry` - Angry
     RoleEnum:
       enum:
       - user

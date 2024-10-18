@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, PostComment
+from .models import Post, PostComment, PostReaction
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -20,7 +20,18 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class PostCommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+
     class Meta:
         model = PostComment
         fields = ["id", "post", "user", "comment", "created_at", "updated_at"]
         read_only_fields = ["id", "user", "post", "created", "updated_at"]
+
+
+class PostReactionSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+
+    class Meta:
+        model = PostReaction
+        fields = ["id", "post", "user", "reaction_type", "created_at"]
+        read_only_fields = ["id", "created_at"]

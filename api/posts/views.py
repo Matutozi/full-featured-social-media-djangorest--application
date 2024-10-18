@@ -3,8 +3,8 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import Post, PostComment
-from .serializers import PostSerializer, PostCommentSerializer
+from .models import Post, PostComment, PostReaction
+from .serializers import PostSerializer, PostCommentSerializer, PostReactionSerializer
 from django.http import Http404
 from rest_framework.exceptions import NotFound
 
@@ -145,3 +145,24 @@ class PostCommentListCreateView(generics.ListCreateAPIView):
         serializer.save(post_id=post_id, user=self.request.user)
 
 
+class PostReactionCreateView(generics.CreateAPIView):
+    """View that adds a reaction to a post"""
+
+    serializer_class = PostReactionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get["post_id"]
+        if not Post.objects.filter(id=post_id).exists():
+            raise NotFound("Post not found.")
+        user = self.request.user
+        reaction_type = self.kwargs["reaction_type"]
+
+        existing_reaction = PostReaction.objects.filter(
+            post_id=post_id, user=user
+        ).first()
+        if existing_reaction:
+            existing_reaction.reaction_type = reaction_type
+            existing_reaction.save()
+        else:
+            serializer.save(post_id=post_id, user=user, reaction_type=reaction_type)

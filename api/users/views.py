@@ -23,7 +23,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import ProfilePic, CoverPhoto
 from django.views.decorators.csrf import csrf_exempt
 from response import BaseResponseView
-
+from rest_framework.exceptions import NotFound
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -124,7 +124,6 @@ class LogoutView(APIView, BaseResponseView):
     permission_classes = [IsAuthenticated]
     serializer_class = None
 
-    @csrf_exempt
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh")
@@ -158,7 +157,7 @@ class UserProfile(APIView, BaseResponseView):
         try:
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
-            raise Http404
+            raise NotFound("User Not Found")
 
     def get(self, request, pk, format=None):
         """Retrieve a user profile"""
@@ -311,6 +310,7 @@ class FollowViewSet(APIView, BaseResponseView):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
 
+    @csrf_exempt
     def post(self, request, user_id):
         """Method to follow a user"""
         if user_id == request.user.id:
@@ -330,7 +330,7 @@ class FollowViewSet(APIView, BaseResponseView):
                 return self.generate_response(
                     status.HTTP_400_BAD_REQUEST, "You alreday follow this user"
                 )
-            
+
             follow = Follow.objects.create(
                 follower=request.user, followed=User.objects.get(id=user_id)
             )
@@ -340,7 +340,7 @@ class FollowViewSet(APIView, BaseResponseView):
                 "message": f"{request.user.username} followed successfully",
                 "data": serializer.data,
             }
-            #add the notification here
+            # add the notification here
             return Response(response_data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
             return Response(

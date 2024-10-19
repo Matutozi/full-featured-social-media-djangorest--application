@@ -65,7 +65,7 @@ def cover_photo_deletion_notification(sender, instance, **kwargs):
 def follow_notification(sender, instance, created, **kwargs):
     """Method that handles notification when a user is followed"""
     action = f"{instance.follower.username} followed  {instance.followed.username}"
-    send_notification(instance.user, action, notification_type="follow")
+    send_notification(instance.followed, action, notification_type="follow")
     notification_event.set()
 
 
@@ -73,7 +73,7 @@ def follow_notification(sender, instance, created, **kwargs):
 def unfollow_notification(sender, instance, **kwargs):
     """Method that handles notification when a user is unfollowed"""
     action = f"{instance.follower.username} unfollowed {instance.followed.username}"
-    send_notification(instance.user, action, notification_type="unfollow")
+    send_notification(instance.followed, action, notification_type="unfollow")
 
     notification_event.set()
 

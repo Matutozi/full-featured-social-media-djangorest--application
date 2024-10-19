@@ -3,7 +3,17 @@ from .models import User, ProfilePic, CoverPhoto, Follow
 from drf_spectacular.utils import extend_schema_field
 
 
+class FollowViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+
+
 class UserSerializers(serializers.ModelSerializer):
+    # followers = FollowViewSerializer(many=True, read_only=True, source="following")
+    followers = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
@@ -18,6 +28,7 @@ class UserSerializers(serializers.ModelSerializer):
             "contact_info",
             "social_links",
             "followers",
+            "following",
             "created_at",
             "updated_at",
         ]
@@ -37,6 +48,26 @@ class UserSerializers(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+    def get_followers(self, obj):
+        """Return a list of followers' usernames."""
+        followers = Follow.objects.filter(follower=obj)
+        print(followers)
+        for follow in followers:
+            print(follow)
+            return follow.followed.username
+        print("I am here")
+        # return [follow.follower.username for follow in followers]
+
+    def get_following(self, obj):
+        """Return a list of users following usernames"""
+        followers = Follow.objects.filter(follower=obj)
+        print(followers)
+        #print(f"print: {followers}")
+        for follow in followers:
+            print(follow)
+            return follow.follower.username
+        print("I am here")
 
 
 class CreateUserSerializer(serializers.ModelSerializer):

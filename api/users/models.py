@@ -23,7 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     last_login = models.DateTimeField(null=True, blank=True)
     followers = models.ManyToManyField(
-        "self", symmetrical=False, related_name="following", blank=True
+        "self", symmetrical=False, related_name="following_users", blank=True
     )
 
     is_active = models.BooleanField(default=True)

@@ -3,10 +3,20 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import Post, PostComment, PostReaction
-from .serializers import PostSerializer, PostCommentSerializer, PostReactionSerializer
+from .models import Post, PostComment, PostReaction, Hashtag
+from .serializers import (
+    PostSerializer,
+    PostCommentSerializer,
+    PostReactionSerializer,
+    HashtagSerializer,
+)
 from django.http import Http404
 from rest_framework.exceptions import NotFound
+from rest_framework import filters
+from users.serializers import UserSerializers
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class PostCreateView(APIView):
@@ -152,7 +162,7 @@ class PostReactionCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        post_id = self.kwargs.get["post_id"]
+        post_id = self.kwargs.get("post_id")
         if not Post.objects.filter(id=post_id).exists():
             raise NotFound("Post not found.")
         user = self.request.user
@@ -166,3 +176,52 @@ class PostReactionCreateView(generics.CreateAPIView):
             existing_reaction.save()
         else:
             serializer.save(post_id=post_id, user=user, reaction_type=reaction_type)
+
+
+class SearchView(generics.ListAPIView):
+    """View that searches for post, user, hashtags"""
+
+    filter_backends = [filters.SearchFilter]
+    search_field = ["content", "user__username", "hashtags__tag"]
+
+    def get_queryset(self):
+        query_type = self.request.GET.get("type")
+
+        if query_type == "user":
+            return User.objects.all()
+
+        elif query_type == "hashtag":
+            return Hashtag.objects.all()
+        return Post.objects.all()
+
+    def get_serializer_class(self):
+        query_type = self.request.GET.get("type")
+
+        if query_type == "user":
+            return UserSerializers
+
+        elif query_type == "hashtag":
+            return HashtagSerializer
+
+        return PostSerializer
+
+
+class TrendingHashtagsView(generics.ListAPIView):
+    """
+    Returns the top 10 trending hashtags.
+    """
+
+    queryset = Hashtag.objects.order_by("-usage")[:10]
+    serializer_class = HashtagSerializer
+
+
+class SuggestedUsersView(generics.ListAPIView):
+    """
+    Suggest users to follow based on mutual connections or similar interests.
+    """
+
+    serializer_class = UserSerializers
+
+    def get_queryset(self):
+        current_user = self.request.user
+        return User.objects.exclude(id__in=current_user.following.all())[:10]

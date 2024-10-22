@@ -1,5 +1,5 @@
 from .models import Post, PostComment
-from .serializers import PostCommentSerializer, PostSerializer
+from .serializers import PostSerializer
 
 from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from djangochannelsrestframework.mixins import (

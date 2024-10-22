@@ -18,11 +18,10 @@ class Post(models.Model):
     tagged_users = models.ManyToManyField(
         User, related_name="tagged_in_posts", blank=True
     )
+    hashtags = models.ManyToManyField("Hashtag", related_name="hashing_posts", blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    hashtags = models.ManyToManyField('Hashtag', related_name='posts', blank=True)
-
 
     def __str__(self) -> str:
         return f"Post by {self.user.username}"

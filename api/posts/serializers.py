@@ -9,8 +9,8 @@ class PostSerializer(serializers.ModelSerializer):
     tagged_users = serializers.SlugRelatedField(
         many=True, slug_field="username", queryset=User.objects.all(), required=False
     )
-    hashtags = serializers.SlugRelatedField(
-        many=True, slug_field="tag", queryset=Hashtag.objects.all(), required=False
+    hashtags = serializers.ListField(
+        child=serializers.CharField(max_length=150), required=False, write_only=True
     )
 
     class Meta:
@@ -33,25 +33,26 @@ class PostSerializer(serializers.ModelSerializer):
         hashtag_data = validated_data.pop("hashtags", [])
 
         post = Post.objects.create(**validated_data)
-        #post.hashtags.set(hashtag_data)
+        # post.hashtags.set(hashtag_data)
 
         hashtags_to_add = []
 
         if tagged_users:
-            print(f"Tagged users: {tagged_users}")
+            # print(f"Tagged users: {tagged_users}")
             post.tagged_users.set(tagged_users)
-
 
         if hashtag_data:
             print("Processing hashtags...")
 
             for tag in hashtag_data:
-                cleaned_tag = tag.lstrip('#')
+                cleaned_tag = tag.strip("#")
                 hashtag, created = Hashtag.objects.get_or_create(tag=cleaned_tag)
                 hashtag.usage += 1
                 hashtag.save()
                 hashtags_to_add.append(hashtag)
-        post.hashtags.set(hashtags_to_add)
+
+        print(hashtags_to_add)
+        post.hashtags.add(*hashtags_to_add)
 
         return post
 

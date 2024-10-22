@@ -9,9 +9,9 @@ class PostSerializer(serializers.ModelSerializer):
     tagged_users = serializers.SlugRelatedField(
         many=True, slug_field="username", queryset=User.objects.all(), required=False
     )
-    hashtags = serializers.ListField(
-    child=serializers.CharField(), required=False
-)
+    hashtags = serializers.SlugRelatedField(
+        many=True, slug_field="tag", queryset=Hashtag.objects.all(), required=False
+    )
 
     class Meta:
         model = Post

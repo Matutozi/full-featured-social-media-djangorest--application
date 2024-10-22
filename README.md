@@ -36,9 +36,9 @@ This is a full-featured social media application built using **Django Rest Frame
 - [ ] File sharing within chats (images, documents, etc.).
 
 ### Search & Discovery:
-- [ ] Search users, posts, hashtags, and keywords.
-- [ ] Trending topics and suggested users to follow.
-- [ ] Tagging users in posts and comments.
+- [x] Search users, posts, hashtags, and keywords.
+- [x] Trending topics and suggested users to follow.
+- [x] Tagging users in posts and comments.
 
 ### Admin Panel:
 - [ ] User management (view, ban, unban users).

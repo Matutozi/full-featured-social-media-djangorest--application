@@ -224,4 +224,4 @@ class SuggestedUsersView(generics.ListAPIView):
 
     def get_queryset(self):
         current_user = self.request.user
-        return User.objects.exclude(id__in=current_user.following.all())[:10]
+        return User.objects.exclude(id__in=current_user.followers.all())[:10]

@@ -33,6 +33,7 @@ class PostComment(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

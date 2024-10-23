@@ -10,12 +10,12 @@ urlpatterns = [
         name="message_list",
     ),
     path(
-        "<int:message_id>/delete",
+        "<uuid:message_id>/delete",
         views.MessageDeleteView.as_view(),
         name="message_delete",
     ),
     path(
-        "<int:message_id>/update/",
+        "<uuid:message_id>/update/",
         views.MessageUpdateView.as_view(),
         name="message_update",
     ),
@@ -29,17 +29,17 @@ urlpatterns = [
         name="create_group_message",
     ),
     path(
-        "group/<int:group_id>/messages/",
+        "group/<uuid:group_id>/messages/",
         views.GroupMessageListView.as_view(),
         name="group_message_list",
     ),
     path(
-        "group/messages/<int:pk>/delete/",
+        "group/messages/<uuid:pk>/delete/",
         views.GroupMessageDeleteView.as_view(),
         name="group_message_delete",
     ),
     path(
-        "group-messages/<int:message_id>/update/",
+        "group-messages/<uuid:message_id>/update/",
         views.GroupMessageUpdateView.as_view(),
         name="group_message_update",
     ),

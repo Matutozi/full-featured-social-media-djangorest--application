@@ -520,6 +520,68 @@ paths:
               schema:
                 $ref: '#/components/schemas/Post'
           description: ''
+  /api/posts/hashtags/trending/:
+    get:
+      operationId: posts_hashtags_trending_list
+      description: Returns the top 10 trending hashtags.
+      tags:
+      - posts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hashtag'
+          description: ''
+  /api/posts/search:
+    get:
+      operationId: posts_search_list
+      description: View that searches for post, user, hashtags
+      parameters:
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - posts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+          description: ''
+  /api/posts/users/suggested/:
+    get:
+      operationId: posts_users_suggested_list
+      description: Suggest users to follow based on mutual connections or similar
+        interests.
+      tags:
+      - posts
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSerializers'
+          description: ''
   /api/users/{id}/:
     get:
       operationId: users_retrieve
@@ -795,7 +857,8 @@ paths:
       - in: path
         name: user_id
         schema:
-          type: integer
+          type: string
+          format: uuid
         required: true
       tags:
       - users
@@ -827,7 +890,8 @@ paths:
       - in: path
         name: user_id
         schema:
-          type: integer
+          type: string
+          format: uuid
         required: true
       tags:
       - users
@@ -851,7 +915,8 @@ paths:
       - in: path
         name: user_id
         schema:
-          type: integer
+          type: string
+          format: uuid
         required: true
       tags:
       - users
@@ -890,7 +955,8 @@ paths:
       - in: path
         name: user_id
         schema:
-          type: integer
+          type: string
+          format: uuid
         required: true
       tags:
       - users
@@ -1288,6 +1354,23 @@ components:
       - group_name
       - id
       - members
+    Hashtag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        tag:
+          type: string
+          maxLength: 100
+        usage:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - tag
+      - usage
     Login:
       type: object
       properties:
@@ -1439,6 +1522,16 @@ components:
           type: string
           format: date-time
           readOnly: true
+        tagged_users:
+          type: array
+          items:
+            type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+            maxLength: 150
+          writeOnly: true
     PatchedUserSerializers:
       type: object
       properties:
@@ -1474,10 +1567,11 @@ components:
         social_links:
           nullable: true
         followers:
-          type: array
-          items:
-            type: string
-            format: uuid
+          type: string
+          readOnly: true
+        following:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -1516,6 +1610,16 @@ components:
           type: string
           format: date-time
           readOnly: true
+        tagged_users:
+          type: array
+          items:
+            type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+            maxLength: 150
+          writeOnly: true
       required:
       - created_at
       - id
@@ -1660,10 +1764,11 @@ components:
         social_links:
           nullable: true
         followers:
-          type: array
-          items:
-            type: string
-            format: uuid
+          type: string
+          readOnly: true
+        following:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -1676,6 +1781,8 @@ components:
       - created_at
       - email
       - first_name
+      - followers
+      - following
       - id
       - last_name
       - password

@@ -50,7 +50,7 @@ This is a full-featured social media application built using **Django Rest Frame
 ## Requirements
 
 ### Documentation & Testing:
-- [ ] API documentation using tools like Postman or Swagger.
+- [x] API documentation using tools like Postman or Swagger.
 - [ ] Comprehensive testing suite using `unittest` and `DRF’s` testing utilities.
 
 ### Database:
@@ -67,12 +67,12 @@ This is a full-featured social media application built using **Django Rest Frame
 - [ ] Cloud deployment using AWS, GCP, Azure, or any other provider.
 
 ### Security:
-- [ ] Best security practices such as CORS, CSRF protection, and input validation.
-- [ ] Regular security audits and penetration testing.
+- [x] Best security practices such as CORS, CSRF protection, and input validation.
+- [x] Regular security audits and penetration testing.
 
 ### Error Handling:
-- [ ] Endpoints return appropriate error responses and status codes.
-- [ ] Graceful error handling to prevent server crashes.
+- [x] Endpoints return appropriate error responses and status codes.
+- [x] Graceful error handling to prevent server crashes.
 
 ---
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Post, PostComment, PostReaction, Hashtag
 from django.contrib.auth import get_user_model
+import re
 
 User = get_user_model()
 
@@ -29,22 +30,28 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "user", "created_at", "updated_at"]
 
     def create(self, validated_data):
-        tagged_users = validated_data.pop("tagged_users", [])
-        hashtag_data = validated_data.pop("hashtags", [])
+        content = validated_data.get("content", "")
+
+        hashtag_pattern = r"#(\w+)"
+        hashtags = re.findall(hashtag_pattern, content)
+
+        tagged_user_pattern = r"@(\w+)"
+        tagged_usernames = re.findall(tagged_user_pattern, content) 
 
         post = Post.objects.create(**validated_data)
         # post.hashtags.set(hashtag_data)
 
-        hashtags_to_add = []
+        
 
-        if tagged_users:
+        if tagged_usernames:
+            tagged_users = User.objects.filter(username__in=tagged_usernames)
             # print(f"Tagged users: {tagged_users}")
             post.tagged_users.set(tagged_users)
 
-        if hashtag_data:
-            print("Processing hashtags...")
-
-            for tag in hashtag_data:
+        if hashtags:
+            #print("Processing hashtags...")
+            hashtags_to_add = []
+            for tag in hashtags:
                 cleaned_tag = tag.strip("#")
                 hashtag, created = Hashtag.objects.get_or_create(tag=cleaned_tag)
                 hashtag.usage += 1

@@ -102,14 +102,14 @@ class MessageUpdateView(BaseResponseView, UpdateAPIView):
     serializer_class = MessageSerializers
     permission_classes = [IsAuthenticated]
 
-    def get_qqueryset(self):
+    def get_queryset(self):
         """TO allow users to update only their messages"""
         return Message.objects.filter(sender=self.request.user)
 
     def get_object(self):
         """Retrieve the object to be updated"""
         message_id = self.kwargs.get("message_id")
-        return get_object_or_404(self.get_queryset(), message_id)
+        return get_object_or_404(self.get_queryset(), id=message_id)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

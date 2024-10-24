@@ -39,7 +39,7 @@ urlpatterns = [
         name="group_message_delete",
     ),
     path(
-        "group-messages/<uuid:message_id>/update/",
+        "group/messages/<uuid:pk>/update/",
         views.GroupMessageUpdateView.as_view(),
         name="group_message_update",
     ),

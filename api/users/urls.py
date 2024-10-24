@@ -10,11 +10,10 @@ from .views import (
     ProfilePicsCreation,
     CoverPhotoCreation,
     FollowViewSet,
+    BanUserView,
+    UnBanUserView
 )
 from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework_simplejwt.views import (
-    TokenBlacklistView,
-)
 
 urlpatterns = [
     path("register", RegisterView.as_view()),
@@ -25,6 +24,10 @@ urlpatterns = [
     path("profile-pic/", ProfilePicsCreation.as_view()),
     path("coverphoto/", CoverPhotoCreation.as_view()),
     path("follow/<uuid:user_id>/", FollowViewSet.as_view()),
+    path("<uuid:pk>/ban", BanUserView.as_view(), name="User-ban"),
+    path("<uuid:pk>/unban", UnBanUserView.as_view(), name="User-ban")
+
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

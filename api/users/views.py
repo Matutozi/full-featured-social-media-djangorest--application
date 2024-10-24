@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, UpdateAPIView
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from .serializers import (
@@ -10,12 +10,12 @@ from .serializers import (
     CoverPhotosSerializer,
     LoginSerializer,
     FollowSerializer,
+    BanUnbanSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.http import Http404
 from rest_framework import status
 from .models import User, Follow
 from django.conf import settings
@@ -24,6 +24,8 @@ from .models import ProfilePic, CoverPhoto
 from django.views.decorators.csrf import csrf_exempt
 from response import BaseResponseView
 from rest_framework.exceptions import NotFound
+from .permissions import IsAdminorStaff
+from response import BaseResponseView
 
 JWT_SECRET = settings.SECRET_KEY
 
@@ -374,3 +376,45 @@ class FollowViewSet(APIView, BaseResponseView):
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+class BanUserView(UpdateAPIView, BaseResponseView):
+    """Class that bans a specific user"""
+
+    queryset = User.objects.all()
+    serializer_class = BanUnbanSerializer
+    permission_classes = [IsAuthenticated, IsAdminorStaff]
+
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        data = {"ban": True}
+        serializer = self.get_serializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return self.generate_response(
+                status.HTTP_202_ACCEPTED, "User ban Successful"
+            )
+        return self.generate_response(
+            status.HTTP_400_BAD_REQUEST, "User Ban not successful", serializer.errors
+        )
+
+
+class UnBanUserView(UpdateAPIView, BaseResponseView):
+    """Class that unbans a specific user"""
+
+    queryset = User.objects.all()
+    serializer_class = BanUnbanSerializer
+    permission_classes = [IsAuthenticated, IsAdminorStaff]
+
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        data = {"ban": False}
+        serializer = self.get_serializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return self.generate_response(
+                status.HTTP_202_ACCEPTED, "User UnBan Successful"
+            )
+        return self.generate_response(
+            status.HTTP_400_BAD_REQUEST, "User Unban not successful", serializer.errors
+        )

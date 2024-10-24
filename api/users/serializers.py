@@ -63,7 +63,7 @@ class UserSerializers(serializers.ModelSerializer):
         """Return a list of users following usernames"""
         followers = Follow.objects.filter(follower=obj)
         print(followers)
-        #print(f"print: {followers}")
+        # print(f"print: {followers}")
         for follow in followers:
             print(follow)
             return follow.follower.username
@@ -153,3 +153,14 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ("follower", "followed", "created_at")
+
+
+class BanUnbanSerializer(serializers.ModelField):
+    class Meta:
+        model = User
+        fields = ["ban"]
+
+    def update(self, instance, validated_data):
+        instance.ban = validated_data.get("ban", instance.ban)
+        instance.save()
+        return instance

@@ -41,7 +41,7 @@ This is a full-featured social media application built using **Django Rest Frame
 - [x] Tagging users in posts and comments.
 
 ### Admin Panel:
-- [ ] User management (view, ban, unban users).
+- [x] User management (view, ban, unban users).
 - [ ] Content moderation (flagged posts, reported users).
 - [ ] Analytics and dashboard for site activity.
 

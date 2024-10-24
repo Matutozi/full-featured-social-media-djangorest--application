@@ -33,7 +33,7 @@ This is a full-featured social media application built using **Django Rest Frame
 ### Messaging:
 - [x] Real-time private messaging between users using Django Channels.
 - [x] Group chats and chat rooms.
-- [ ] File sharing within chats (images, documents, etc.).
+- [x] File sharing within chats (images, documents, etc.).
 
 ### Search & Discovery:
 - [x] Search users, posts, hashtags, and keywords.

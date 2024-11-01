@@ -15,6 +15,9 @@ from rest_framework.exceptions import NotFound
 from rest_framework import filters
 from users.serializers import UserSerializers
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 
 User = get_user_model()
 
@@ -53,6 +56,8 @@ class PostListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
 
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
     def get_queryset(self):
         username = self.request.query_params.get("username", None)
         if username:
@@ -68,6 +73,8 @@ class PostView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
 
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
     def get_object(self, post_id):
         try:
             return Post.objects.get(id=post_id)
@@ -213,6 +220,11 @@ class TrendingHashtagsView(generics.ListAPIView):
 
     queryset = Hashtag.objects.order_by("-usage")[:10]
     serializer_class = HashtagSerializer
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    @method_decorator(vary_on_cookie)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class SuggestedUsersView(generics.ListAPIView):

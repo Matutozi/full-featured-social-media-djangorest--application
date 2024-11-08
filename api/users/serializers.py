@@ -52,22 +52,22 @@ class UserSerializers(serializers.ModelSerializer):
     def get_followers(self, obj):
         """Return a list of followers' usernames."""
         followers = Follow.objects.filter(follower=obj)
-        print(followers)
+        #print(followers)
         for follow in followers:
-            print(follow)
+            #print(follow)
             return follow.followed.username
-        print("I am here")
+        #print("I am here")
         # return [follow.follower.username for follow in followers]
 
     def get_following(self, obj):
         """Return a list of users following usernames"""
         followers = Follow.objects.filter(follower=obj)
-        print(followers)
+        #print(followers)
         # print(f"print: {followers}")
         for follow in followers:
-            print(follow)
+            #print(follow)
             return follow.follower.username
-        print("I am here")
+        #print("I am here")
 
 
 class CreateUserSerializer(serializers.ModelSerializer):

@@ -130,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles", "static")
+#STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles", "static")
 
 
 AUTHENTICATION_BACKENDS = [

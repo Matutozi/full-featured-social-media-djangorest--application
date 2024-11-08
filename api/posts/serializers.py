@@ -47,10 +47,11 @@ class PostSerializer(serializers.ModelSerializer):
             tagged_users = User.objects.filter(username__in=tagged_usernames)
             # print(f"Tagged users: {tagged_users}")
             post.tagged_users.set(tagged_users)
-
+            
+        hashtags_to_add = []
         if hashtags:
             #print("Processing hashtags...")
-            hashtags_to_add = []
+            
             for tag in hashtags:
                 cleaned_tag = tag.strip("#")
                 hashtag, created = Hashtag.objects.get_or_create(tag=cleaned_tag)
@@ -58,7 +59,7 @@ class PostSerializer(serializers.ModelSerializer):
                 hashtag.save()
                 hashtags_to_add.append(hashtag)
 
-        print(hashtags_to_add)
+        #print(hashtags_to_add)
         post.hashtags.add(*hashtags_to_add)
 
         return post

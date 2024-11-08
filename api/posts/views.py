@@ -17,7 +17,8 @@ from users.serializers import UserSerializers
 from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from django.views.decorators.vary import vary_on_cookie
+from django.db import transaction
 
 User = get_user_model()
 
@@ -58,6 +59,9 @@ class PostListView(generics.ListAPIView):
 
     @method_decorator(cache_page(60 * 60 * 2))
     @method_decorator(vary_on_cookie)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         username = self.request.query_params.get("username", None)
         if username:
@@ -75,7 +79,11 @@ class PostView(APIView):
 
     @method_decorator(cache_page(60 * 60 * 2))
     @method_decorator(vary_on_cookie)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
     def get_object(self, post_id):
+        #print(f"Attempting to retrieve Post {post_id}")
         try:
             return Post.objects.get(id=post_id)
         except Post.DoesNotExist:
@@ -84,7 +92,7 @@ class PostView(APIView):
     def get(self, request, post_id, format=None):
         """Retrieve a post"""
         post = self.get_object(post_id)
-        serializer = self.serializer_class(post)
+        serializer = PostSerializer(post)
         response_data = {
             "status_code": status.HTTP_200_OK,
             "message": "Post successfully retrieved",
@@ -146,7 +154,7 @@ class PostView(APIView):
         )
 
 
-class PostCommentListCreateView(generics.ListCreateAPIView):
+class PostCommentListCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostCommentSerializer
     lookup_field = "post_id"
@@ -159,6 +167,8 @@ class PostCommentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         post_id = self.kwargs["post_id"]
+        #print(f"Attempting to retrieve a post id so that i can add a comment{post_id}")
+
         serializer.save(post_id=post_id, user=self.request.user)
 
 

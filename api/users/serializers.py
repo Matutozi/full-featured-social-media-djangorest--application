@@ -155,7 +155,7 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ("follower", "followed", "created_at")
 
 
-class BanUnbanSerializer(serializers.ModelField):
+class BanUnbanSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["ban"]

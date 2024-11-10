@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from .models import User, Follow
 from rest_framework.test import APIClient
+import json
 
 
 class UserTests(TestCase):
@@ -55,8 +56,12 @@ class UserTests(TestCase):
         """Test updating user profile"""
         self.client.login(email="testuser@example.com", password="password123")
         url = reverse("user_profile", args=[self.user.pk])
-        data = {"username": "updateduser"}
-        response = self.client.patch(url, data, content_type="application/json")
+        data = {
+            "username": "updateduser",
+            "email": "newemail@example.com",
+            "bio": "new bio",
+        }
+        response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, 200)
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, "updateduser")
@@ -69,7 +74,7 @@ class UserTests(TestCase):
         self.client.login(email="testuser@example.com", password="password123")
         url = reverse("follow", args=[other_user.pk])
         response = self.client.post(url)
-        #print(response.json())
+        # print(response.json())
         self.assertEqual(response.status_code, 201)
         self.assertTrue(
             Follow.objects.filter(follower=self.user, followed=other_user).exists()
@@ -110,11 +115,11 @@ class UserTests(TestCase):
         self.client.login(email="admin@example.com", password="admin123")
         self.client.force_authenticate(user=self.admin_user)
 
-        url = reverse("user-ban", args=[self.user.pk])
+        url = reverse("user-unban", args=[self.user.pk])
         response = self.client.patch(
             url, {"ban": False}, content_type="application/json"
         )
-        print(response.json())
+        # print(response.json())
         self.assertEqual(response.status_code, 202)
         self.user.refresh_from_db()
         self.assertFalse(self.user.ban)

@@ -404,7 +404,7 @@ class UnBanUserView(UpdateAPIView, BaseResponseView):
 
     queryset = User.objects.all()
     serializer_class = BanUnbanSerializer
-    permission_classes = [IsAuthenticated, IsAdminorStaff]
+    permission_classes = [IsAuthenticated &IsAdminorStaff]
 
     def patch(self, request, *args, **kwargs):
         user = self.get_object()

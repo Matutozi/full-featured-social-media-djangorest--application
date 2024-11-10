@@ -24,7 +24,7 @@ urlpatterns = [
     path("coverphoto/", CoverPhotoCreation.as_view()),
     path("follow/<uuid:user_id>/", FollowViewSet.as_view(), name="follow"),
     path("<uuid:pk>/ban", BanUserView.as_view(), name="user-ban"),
-    path("<uuid:pk>/unban", UnBanUserView.as_view(), name="User-ban")
+    path("<uuid:pk>/unban", UnBanUserView.as_view(), name="user-unban")
 
 
 ]

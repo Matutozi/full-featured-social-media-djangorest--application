@@ -3,8 +3,6 @@ from .models import Message, Group, GroupMessage
 from .serializers import (
     MessageListSerializer,
     MessageSerializers,
-    ConversationDetailSerializers,
-    ConversationListSerializer,
     GroupSerializers,
     GroupMessageSerializer,
     UserSerializers,
@@ -175,7 +173,7 @@ class CreateGroupMessageView(BaseResponseView, CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        print(f"User authenticated: {self.request.user.is_authenticated}")
+        #print(f"User authenticated: {self.request.user.is_authenticated}")
         group_id = self.kwargs.get("group_id")
         try:
             group = Group.objects.get(id=group_id)
@@ -187,12 +185,15 @@ class CreateGroupMessageView(BaseResponseView, CreateAPIView):
     def create(self, request, *args, **kwargs):
         group_id = self.kwargs.get("group_id")
         # print("erroe comes from here")
-        request.data["group"] = group_id
+        data = request.data.copy()
+        data["group"] = group_id
         # print("cause the error comes from here")
 
-        serializer = self.get_serializer(data=request.data)
-        print(request.data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
+        if serializer.errors:
+            print(serializer.errors) 
+        #print(request.data)
         group_message = self.perform_create(serializer)
 
         return self.generate_response(

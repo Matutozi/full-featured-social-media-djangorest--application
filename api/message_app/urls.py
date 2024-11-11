@@ -36,7 +36,7 @@ urlpatterns = [
     path(
         "group/messages/<uuid:pk>/delete/",
         views.GroupMessageDeleteView.as_view(),
-        name="group_message_delete",
+        name="delete_group_message",
     ),
     path(
         "group/messages/<uuid:pk>/update/",
